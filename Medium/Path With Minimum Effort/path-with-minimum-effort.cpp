@@ -29,47 +29,31 @@ class Matrix {
 
 class Solution {
   public:
-  
-    bool isValid(int newX, int newY, int m, int n,vector<vector<bool>>& vis){
-        return newX >=0 and newX <m and newY >=0 and newY < n and !vis[newX][newY];
-    }
-    int check(vector<vector<int>>& M, int mid){
-        int m = M.size(), n = M[0].size();
-        vector<vector<bool>> vis(m , vector<bool>(n, false));
-        vis[0][0] = true;
-        int dx[4] = {1,0,-1,0};
-        int dy[4] = {0,-1,0,1};
-        queue<pair<int,int>> q;
-        q.push({0,0});
-        while(!q.empty()){
-            auto curr = q.front();
-            q.pop();
-            if(curr.first == m-1 and  curr.second == n-1){
-                return true;
-            }
-            for(int i = 0 ; i < 4 ; i++){
-                int newX = curr.first + dx[i];
-                int newY = curr.second + dy[i];
-                if(isValid(newX,newY,m,n,vis) and abs(M[newX][newY]-M[curr.first][curr.second]) <= mid){
-                    vis[newX][newY] = true;
-                    q.push({newX, newY});
-                }
-            }
-            
-        }
-        return false;
-    }
     int MinimumEffort(int rows, int columns, vector<vector<int>> &heights) {
         // code here
-        int low = 0, high = 1e6;
-        while( low < high){
-            int mid = low + (high - low)/2;
-            if(check(heights, mid))
-                high = mid;
-            else
-                low = mid + 1;
+        priority_queue<pair<int,pair<int,int>>,vector<pair<int,pair<int,int>>>,greater<pair<int,pair<int,int>>>> pq;
+        int n = heights.size(), m = heights[0].size();
+        vector<vector<int>> dist(n, vector<int>(m,1e9));
+        dist[0][0] = 0;
+        pq.push({0,{0,0}});
+        int dr[] ={-1,0,1,0};
+        int dc[] = {0,1,0,-1};
+        while(!pq.empty()){
+            auto it = pq.top();pq.pop();
+            int diff = it.first,row = it.second.first,col=it.second.second;
+            if(row == n-1 and col == m-1)return diff;
+            for(int i = 0; i < 4; i++){
+                int newr = row + dr[i], newc = col + dc[i];
+                if(newr >=0 and newc >=0 and newr < n and newc < m){
+                    int newEffort = max(abs(heights[row][col] - heights[newr][newc]), diff);
+                    if(newEffort < dist[newr][newc]){
+                        dist[newr][newc] = newEffort;
+                        pq.push({newEffort,{newr, newc}});
+                    }
+                }
+            }
         }
-        return low;
+        return 0;
     }
 };
 
